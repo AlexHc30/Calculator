@@ -22,7 +22,8 @@ const display = document.getElementById('display');
 let displayValue = 0;
 let firstValue = 0;
 let secondValue = 0;
-let operator = '';
+let operation = '';
+
 
 const numbers = Array.from(document.getElementsByClassName('numbers'));
 numbers.forEach(number => number.addEventListener('click', createNumber));
@@ -36,7 +37,7 @@ function createNumber(number){
         displayValue = `${displayValue}${value}`;
     }
 
-    if(!operator) {
+    if(!operation) {
         console.log(value)
         firstValue = Number(`${firstValue}${value}`);
         return [display.textContent = displayValue, firstValue];
@@ -46,10 +47,20 @@ function createNumber(number){
     }
 }
 
-// temporary to test if createNumber() captures both first and second values
-const addition = document.getElementById('add');
-addition.addEventListener('click', function(){
-    console.log(addition.value)
-    displayValue = `${displayValue}${addition.textContent}`;
-    return [operator = add, display.textContent = displayValue];
-})
+
+const operators = Array.from(document.getElementsByClassName('operators'));
+operators.forEach(operator => operator.addEventListener('click', selectOperation));
+
+function selectOperation(operator) {
+    if(firstValue && !secondValue) {
+        if(!operation) {
+            console.log('lalalal')
+            displayValue = `${displayValue}${operator.target.textContent}`;
+        } else {
+            displayValue = displayValue.slice(0, (displayValue.length - 1));
+            displayValue = `${displayValue}${operator.target.textContent}`;
+        }
+        operation = operator.target.value;
+    }
+    return [operation, display.textContent = displayValue];
+}

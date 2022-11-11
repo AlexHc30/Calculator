@@ -48,8 +48,12 @@ body {
     grid-template-rows: repeat(5, 1fr);
 }
 
-.operators {
+.operators, .clear {
     background-color: #237E96;
+}
+
+.equals {
+    background-color: #d7820b;
 }
 
 .clear {

@@ -9,26 +9,52 @@ const operationsObj = {
     add(a,b) {
         return a + b;
     },
+
     subtract(a,b) {
         return a - b;
     },
+
     multiply(a,b) {
+        //limit number of decimals when multiplying non-integers
+        if(!Number.isInteger(a*b)) {
+            let result = (a * b).toFixed(4);
+            while(result[result.length - 1] == 0) {
+                result = result.slice(0, (result.length - 1));
+            } 
+            return result;
+        }
         return a * b;
     },
+
     divide(a,b) {
         if(a % b === 0) {
             return a / b;
+        } else if(b == 0) {
+            alert("You can't divide by 0!!")
+            console.log('no / 0')
         } else {
-            return (a / b).toFixed(4);
+            let result = (a / b).toFixed(4);
+            while(result[result.length - 1] == 0) {
+                result = result.slice(0, (result.length - 1));
+            } 
+            console.log('no / 0')
+            return result;
         }
     }
 };
 
-const operate = function(operator, a, b) {
+const operate = function(operator, a, b, newOperationName, newOperation) {
     firstValue = operationsObj[operator](a,b);
     displayValue = firstValue;
     secondValue = 0;
-    operation = '';
+    // when calculation is made by choosing operator intead of 'equals'
+    if(newOperation) {
+        operation = newOperationName;
+        displayValue = `${displayValue}${newOperation}`
+    } else {
+        operation = '';
+    }
+    
     return [firstValue, 
             secondValue, 
             operation,
@@ -44,9 +70,9 @@ function createNumber(number){
     let value = number.target.innerText;
 
     // prevent numbers from having more than one '.' (i.e. '42.21.1')
-    if(firstValue !== 0 && firstValue.includes('.') && !operation && value == '.') {
+    if(firstValue !== 0 && firstValue.toString().includes('.') && !operation && value == '.') {
         return;
-    } else if(secondValue !==0 && secondValue.includes('.') && value == '.') {
+    } else if(secondValue !==0 && secondValue.toString().includes('.') && value == '.') {
         return;
     }
     
@@ -72,11 +98,16 @@ operators.forEach(operator => operator.addEventListener('click', selectOperation
 
 function selectOperation(operator) {
     if(firstValue && !secondValue) {
+        // in case there is already an operation, replace it with a new one
         if(operation) {
             displayValue = displayValue.slice(0, (displayValue.length - 1));
         }
         displayValue = `${displayValue}${operator.target.textContent}`;
         operation = operator.target.value;
+    }
+
+    if(firstValue && secondValue && operation) {
+        calculateExpression(operator.target.value, operator.target.textContent);
     }
     return [operation, display.textContent = displayValue];
 }
@@ -85,11 +116,21 @@ function selectOperation(operator) {
 const equals = document.querySelector('.equals');
 equals.addEventListener('click', calculateExpression);
 
-function calculateExpression() {
+function calculateExpression(newOperationName, newOperation) {
     firstValue = Number(firstValue);
     secondValue = Number(secondValue);
     if(firstValue && secondValue && operation) {
-        operate(operation, firstValue, secondValue);
+        // for cases when value gets calculated via operator
+        if(newOperationName && newOperation) {
+            operate(operation, firstValue, secondValue, newOperationName, newOperation);
+        } else {
+            operate(operation, firstValue, secondValue);
+        }
+    // when user tries to divide by 0
+    } else if(firstValue && secondValue === 0 && operation) {
+        alert("You can't divide by 0!!");
+        displayValue = displayValue.slice(0, (displayValue.length - 1));
+        return display.textContent = displayValue;
     }
 }
 
@@ -102,6 +143,10 @@ function clearEverything() {
             display.textContent = displayValue,
             firstValue = 0,
             secondValue = 0,
-            operation,
+            operation = '',
             firstCalculation = true];
 }
+
+
+// make calculator work with keyboard also
+

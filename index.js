@@ -67,7 +67,13 @@ const numbers = Array.from(document.getElementsByClassName('numbers'));
 numbers.forEach(number => number.addEventListener('click', createNumber));
 
 function createNumber(number){
-    let value = number.target.innerText;
+    let value;
+    // condition for keyboard input
+    if(typeof number == 'string') {
+        value = number;
+    } else {
+        value = number.target.innerText;
+    }
 
     // prevent numbers from having more than one '.' (i.e. '42.21.1')
     if(firstValue !== 0 && firstValue.toString().includes('.') && !operation && value == '.') {
@@ -96,20 +102,71 @@ function createNumber(number){
 const operators = Array.from(document.getElementsByClassName('operators'));
 operators.forEach(operator => operator.addEventListener('click', selectOperation));
 
-function selectOperation(operator) {
+function selectOperation(operator, operationText) {
+    let operationSign = '';
+    let operationName = '';
+    // for cases when operations are inputed via keyboard
+    if(operationText) {
+        operationSign = operator;
+        operationName = operationText;
+    } else {
+        operationSign = operator.target.textContent;
+        operationName = operator.target.value;
+    }
+
     if(firstValue && !secondValue) {
         // in case there is already an operation, replace it with a new one
         if(operation) {
             displayValue = displayValue.slice(0, (displayValue.length - 1));
         }
-        displayValue = `${displayValue}${operator.target.textContent}`;
-        operation = operator.target.value;
+        displayValue = `${displayValue}${operationSign}`;
+        operation = operationName;
     }
 
     if(firstValue && secondValue && operation) {
-        calculateExpression(operator.target.value, operator.target.textContent);
+        calculateExpression(operationName, operationSign);
     }
     return [operation, display.textContent = displayValue];
+}
+
+
+this.addEventListener('keyup', keysActivateButtons);
+function keysActivateButtons(event) {
+    let keyValue = event.key;
+    let operationName = '';
+    switch(keyValue) {
+        case '.': 
+        case '0': 
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5': 
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            createNumber(keyValue);
+            break;
+        case '+':
+            operationName = 'add';
+            selectOperation(keyValue, operationName);
+            break;
+        case '-':
+            operationName = 'subtract';
+            selectOperation(keyValue, operationName);
+            break;
+        case '*':
+            operationName = 'multiply';
+            selectOperation('×', operationName);
+            break;
+        case '/':
+            operationName = 'divide';
+            selectOperation('÷', operationName);
+            break;
+        case 'Enter':
+            calculateExpression();
+    }
 }
 
 
@@ -127,7 +184,7 @@ function calculateExpression(newOperationName, newOperation) {
             operate(operation, firstValue, secondValue);
         }
     // when user tries to divide by 0
-    } else if(firstValue && secondValue === 0 && operation) {
+    } else if(firstValue && secondValue === 0 && operation === 'divide') {
         alert("You can't divide by 0!!");
         displayValue = displayValue.slice(0, (displayValue.length - 1));
         return display.textContent = displayValue;
@@ -148,5 +205,5 @@ function clearEverything() {
 }
 
 
-// make calculator work with keyboard also
+// prevent overflowing the display
 

@@ -1,8 +1,10 @@
 const display = document.getElementById('display');
+const displayExpression = document.getElementById('previousCalc');
 let displayValue = 0;
 let firstValue = 0;
 let secondValue = 0;
 let operation;
+let operationSign;
 let firstCalculation = true;
 
 const operationsObj = {
@@ -31,19 +33,18 @@ const operationsObj = {
             return a / b;
         } else if(b == 0) {
             alert("You can't divide by 0!!")
-            console.log('no / 0')
         } else {
             let result = (a / b).toFixed(4);
             while(result[result.length - 1] == 0) {
                 result = result.slice(0, (result.length - 1));
             } 
-            console.log('no / 0')
             return result;
         }
     }
 };
 
 const operate = function(operator, a, b, newOperationName, newOperation) {
+    displayExpression.innerText = `${firstValue} ${operationSign} ${secondValue}`
     firstValue = operationsObj[operator](a,b);
     displayValue = firstValue;
     secondValue = 0;
@@ -59,6 +60,7 @@ const operate = function(operator, a, b, newOperationName, newOperation) {
             secondValue, 
             operation,
             display.textContent = displayValue,
+            displayExpression,
             firstCalculation = false];
 };
 
@@ -76,14 +78,17 @@ function createNumber(number){
     }
 
     // prevent numbers from having more than one '.' (i.e. '42.21.1')
-    if(firstValue !== 0 && firstValue.toString().includes('.') && !operation && value == '.') {
-        return;
-    } else if(secondValue !==0 && secondValue.toString().includes('.') && value == '.') {
+    if((firstValue !== 0 && firstValue.toString().includes('.') && !operation && value == '.') ||
+       (secondValue !==0 && secondValue.toString().includes('.') && value == '.')) {
         return;
     }
     
+    // both conditions prevent adding numbers after 0, e.g. 0654
     if(displayValue === 0 && value !== '.') {
         displayValue = value;
+    } else if(displayValue[displayValue.length - 1] == '0' && value !== '.') {
+        displayValue = displayValue.slice(0, (displayValue.length - 1));
+        displayValue = `${displayValue}${value}`;
     // prevent inserting numbers to the back of the result number
     } else if ((firstCalculation || (!firstCalculation && operation))) {
         displayValue = `${displayValue}${value}`;
@@ -103,7 +108,6 @@ const operators = Array.from(document.getElementsByClassName('operators'));
 operators.forEach(operator => operator.addEventListener('click', selectOperation));
 
 function selectOperation(operator, operationText) {
-    let operationSign = '';
     let operationName = '';
     // for cases when operations are inputed via keyboard
     if(operationText) {
@@ -126,7 +130,7 @@ function selectOperation(operator, operationText) {
     if(firstValue && secondValue && operation) {
         calculateExpression(operationName, operationSign);
     }
-    return [operation, display.textContent = displayValue];
+    return [operation, operationSign, display.textContent = displayValue];
 }
 
 
@@ -166,6 +170,9 @@ function keysActivateButtons(event) {
             break;
         case 'Enter':
             calculateExpression();
+            break;
+        case 'Delete':
+            clearEverything();
     }
 }
 
@@ -198,6 +205,7 @@ clear.addEventListener('click', clearEverything);
 function clearEverything() {
     return [displayValue = 0,
             display.textContent = displayValue,
+            displayExpression.textContent = '',
             firstValue = 0,
             secondValue = 0,
             operation = '',

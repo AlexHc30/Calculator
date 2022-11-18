@@ -1,5 +1,5 @@
 # Calculator
-Create an on-screen calculator using JavaScript, HTML, and CSS.
+Create an on-screen calculator using JavaScript, HTML, and CSS.<br>
 Live <a href="https://alexhc30.github.io/Calculator/">page</a>.
 
 ## Features

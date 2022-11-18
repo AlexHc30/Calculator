@@ -43,8 +43,14 @@ const operationsObj = {
     }
 };
 
-const operate = function(operator, a, b, newOperationName, newOperation) {
-    displayExpression.innerText = `${firstValue} ${operationSign} ${secondValue}`
+const operate = function(operator, a, b, newOperationName, newOperation, previousOperator) {
+    // displaying previous expression
+    if(newOperation) {
+        displayExpression.innerText = `${firstValue} ${previousOperator} ${secondValue}`;
+    } else {
+        displayExpression.innerText = `${firstValue} ${operationSign} ${secondValue}`;
+    }
+
     firstValue = operationsObj[operator](a,b);
     displayValue = firstValue;
     secondValue = 0;
@@ -109,6 +115,7 @@ operators.forEach(operator => operator.addEventListener('click', selectOperation
 
 function selectOperation(operator, operationText) {
     let operationName = '';
+    let previousOperator = operationSign;
     // for cases when operations are inputed via keyboard
     if(operationText) {
         operationSign = operator;
@@ -128,7 +135,7 @@ function selectOperation(operator, operationText) {
     }
 
     if(firstValue && secondValue && operation) {
-        calculateExpression(operationName, operationSign);
+        calculateExpression(operationName, operationSign, previousOperator);
     }
     return [operation, operationSign, display.textContent = displayValue];
 }
@@ -180,13 +187,13 @@ function keysActivateButtons(event) {
 const equals = document.querySelector('.equals');
 equals.addEventListener('click', calculateExpression);
 
-function calculateExpression(newOperationName, newOperation) {
+function calculateExpression(newOperationName, newOperation, previousOperator) {
     firstValue = Number(firstValue);
     secondValue = Number(secondValue);
     if(firstValue && secondValue && operation) {
         // for cases when value gets calculated via operator
         if(newOperationName && newOperation) {
-            operate(operation, firstValue, secondValue, newOperationName, newOperation);
+            operate(operation, firstValue, secondValue, newOperationName, newOperation, previousOperator);
         } else {
             operate(operation, firstValue, secondValue);
         }
@@ -211,7 +218,3 @@ function clearEverything() {
             operation = '',
             firstCalculation = true];
 }
-
-
-// prevent overflowing the display
-
